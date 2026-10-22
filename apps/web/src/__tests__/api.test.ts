@@ -70,6 +70,28 @@ describe("API client", () => {
 		// The thrown error should be detectable as auth error
 	});
 
+	it("posts credentials to loginBasic", async () => {
+		mockJsonResponse({ success: true });
+		await api.loginBasic("admin", "secret");
+		expect(mockFetch).toHaveBeenCalledWith(
+			"/api/auth/login",
+			expect.objectContaining({
+				method: "POST",
+				credentials: "include",
+				body: JSON.stringify({ username: "admin", password: "secret" }),
+			}),
+		);
+	});
+
+	it("loginBasic throws on failure", async () => {
+		mockFetch.mockResolvedValueOnce({
+			ok: false,
+			status: 401,
+			json: () => Promise.resolve({ error: "Invalid credentials" }),
+		});
+		await expect(api.loginBasic("admin", "wrong")).rejects.toThrow("Invalid credentials");
+	});
+
 	it("identifies AuthError with isAuthError", async () => {
 		mockFetch.mockResolvedValueOnce({
 			ok: false,

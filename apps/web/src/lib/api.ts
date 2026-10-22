@@ -258,6 +258,25 @@ export function getMe(): Promise<UserInfo> {
 	return fetchApi("/me");
 }
 
+export async function loginBasic(username: string, password: string): Promise<void> {
+	const res = await fetch(`${API_BASE}/auth/login`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username, password }),
+		credentials: "include",
+	});
+	if (!res.ok) {
+		let message = "Invalid credentials";
+		try {
+			const body = (await res.json()) as { error?: string };
+			if (body.error) message = body.error;
+		} catch {
+			// ignore
+		}
+		throw new Error(message);
+	}
+}
+
 export function isAuthError(error: unknown): boolean {
 	return error instanceof AuthError;
 }

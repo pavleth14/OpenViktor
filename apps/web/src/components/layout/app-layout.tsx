@@ -50,17 +50,17 @@ export function AppLayout() {
 		retry: false,
 	});
 
-	const { data: me } = useQuery({
+	const { data: me, error: meError } = useQuery({
 		queryKey: ["me"],
 		queryFn: getMe,
 		retry: false,
 	});
 
 	useEffect(() => {
-		if (error && isAuthError(error)) {
-			navigate("/");
+		if ((error && isAuthError(error)) || (meError && isAuthError(meError))) {
+			navigate("/login");
 		}
-	}, [error, navigate]);
+	}, [error, meError, navigate]);
 
 	useEffect(() => {
 		if (data?.workspaces?.length && !localStorage.getItem("ov_workspace_id")) {
